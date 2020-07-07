@@ -1,0 +1,244 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{paralist}
+\usepackage{amsfonts}
+
+\oddsidemargin 0mm
+\evensidemargin 0mm
+\textwidth 150mm
+\textheight 200mm
+\renewcommand\baselinestretch{1.0}
+
+\pagestyle {plain}
+\pagenumbering{arabic}
+
+\newcounter{stepnum}
+
+\title{Assignment 4, Specification}
+\author{Seda Mete}
+\date{April 9, 2019}
+
+\begin {document}
+
+\maketitle
+
+This MIS document contains modules, types, and methods for implementing the state of a game of Conway's Game of Life. The modules cover the Model and View portions of the Model View Controller design pattern. The GameBoard module stores the state of the game and the View module can display the state of the game board using ASCII graphics.
+
+\newpage
+
+\section* {Game Board Types Module}
+
+\subsection*{Module}
+
+GameBoardTypes
+
+\subsection* {Uses}
+
+N/A
+
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+
+SIZE = 20 {\it //size of the board in each direction}\\
+
+\subsubsection* {Exported Types}
+
+cellT = \{ DEAD, ALIVE \} {\it //the two states a cell can be}\\
+
+\subsubsection* {Exported Access Programs}
+
+None
+
+\subsection* {Semantics}
+
+\subsubsection* {State Variables}
+
+None
+
+\subsubsection* {State Invariant}
+
+None
+
+\newpage
+
+\section* {Game Board Module}
+
+\subsection*{Module}
+
+GameBoard
+
+\subsection* {Uses}
+
+GameBoardTypes
+
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+
+None
+
+\subsubsection* {Exported Types}
+
+None
+
+\subsubsection* {Exported Access Programs}
+
+\begin{tabular}{| l | l | l | p{7cm} |}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+init & string & ~ & invalid\_file\\
+\hline
+next & ~ & ~ & ~\\
+\hline
+getb & $\mathbb{Z}, \mathbb{Z}$ & cellT & out\_of\_bounds\\
+\hline
+\end{tabular}
+
+\subsection* {Semantics}
+
+\subsubsection* {Environment Variables}
+initial\_state: File containing initial game state
+
+\subsubsection* {State Variables}
+
+$b$: boardT
+
+\subsubsection* {State Invariant}
+
+$|b|$ = 20
+
+\subsubsection* {Assumptions}
+
+\begin{itemize}
+\item The input file will match the given specification. 
+\item The init method is called for the abstract object before any other access routine is called for that object.
+\end{itemize}
+
+\subsubsection* {Access Routine Semantics}
+
+\noindent init($s$):
+\begin{itemize}
+\item transition: Read data from the file initial\_state associated with the string $s$. Use this data to initialize the state of the game board $b$. \\
+The text file has the following format. Each line represents a row in the game board. There are 20 lines, each containing 20 numbers (0 or 1) separated by a comma.  Each comma-separated number represents a cell in the game board. The value of the number represents the state of that cell. A 0 represents a DEAD cell and a 1 represents an ALIVE cell.
+\item exception: $exc :=$ file named $s$ doesn't exist $\Rightarrow \mbox{invalid\_file}$
+\end{itemize}
+
+\noindent next():
+\begin{itemize}
+\item transition: $+(\forall \ i, j : \mathbb{Z} \mid (0 \le i < \mbox{SIZE}) \land (0 \le j < \mbox{SIZE}) : (b[i, j] = \mbox{DEAD} \land \mbox{liveNeighbours} = 3) \Rightarrow temp[i,j] := \mbox{ALIVE} \mid (b[i, j] = \mbox{DEAD} \land \mbox{liveNeighbours} \neq 3) \Rightarrow temp[i,j] := \mbox{DEAD} \mid (b[i, j] = \mbox{ALIVE} \land (\mbox{liveNeighbours} \neq 2 \lor \mbox{liveNeighbours} \neq 3)) \Rightarrow temp[i,j] := \mbox{DEAD} \mid (b[i, j] = \mbox{ALIVE} \land (\mbox{liveNeighbours} = 2  \lor  \mbox{liveNeighbours} = 3)) \Rightarrow temp[i,j] := \mbox{ALIVE})$, where temp is a new temporary sequence [SIZE, SIZE] of cellT\\
+$b := temp$
+\item exception: none
+\end{itemize}
+
+\noindent getb($i, j$):
+\begin{itemize}
+\item output: $\mathit{out} := b[i, j]$
+\item exception: $exc := (\lnot \mbox{validPosition}(i, j) \Rightarrow \mbox{out\_of\_bounds})$
+\end{itemize}
+
+\subsubsection* {Local Types}
+
+boardT = sequence [SIZE, SIZE] of cellT
+
+\subsubsection* {Local Functions}
+
+liveNeighbours: $\mathbb{N} \times \mathbb{N} \rightarrow \mathbb{N}$\\
+liveNeighbours($i,j) \equiv \ +(m, n : \mathbb{Z} \mid : i-1 \le m \le i+1 \land j-1 \le n \le i+1 \land (m \neq i \lor n \neq j) \land \mbox{validPosition}(m,n) \land b[m, n] = \mbox{ALIVE} : 1)$\\
+\\
+validPosition: $\mathbb{N} \times \mathbb{N} \rightarrow \mathbb{B}$\\
+validPosition($i,j) \equiv (0 \le i < \mbox{SIZE} \land 0 \le j < \mbox{SIZE})$\\
+
+\newpage
+
+\section* {View Module}
+
+\subsection*{Module}
+
+View
+
+\subsection* {Uses}
+
+GameBoardTypes\\
+GameBoard
+
+\subsection* {Syntax}
+
+\subsubsection* {Exported Constants}
+
+None
+
+\subsubsection* {Exported Types}
+
+None
+
+\subsubsection* {Exported Access Programs}
+
+\begin{tabular}{| l | l | l | p{7cm} |}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+view & GameBoard & ~ & ~\\
+\hline
+save & GameBoard, string & ~ & ~\\
+\hline
+\end{tabular}
+
+\subsection* {Semantics}
+
+\subsubsection* {Environment Variables}
+
+console: Represents the console that text will be outputted to\\
+outFile: Represents the output file that the save method creates
+
+\subsubsection* {State Variables}
+
+None
+
+\subsubsection* {State Invariant}
+
+None
+
+\subsubsection* {Assumptions}
+
+\begin{itemize}
+\item A GameBoard object has been created and the init method has been called for it before any of these access routines are called.
+\item A valid output file name is given for the save function.
+\end{itemize}
+
+\subsubsection* {Access Routine Semantics}
+
+\noindent view($game$):
+\begin{itemize}
+\item transition: console := $(\forall \ i : \mathbb{Z} \mid 0 \le i < \mbox{SIZE}: (\forall \ j : \mathbb{Z} \mid 0 \le j < \mbox{SIZE}: game.\mbox{getb}(i, j) = \mbox{DEAD} \Rightarrow "| \ " | \ game.\mbox{getb}(i, j) = \mbox{ALIVE} \Rightarrow "|O") "| \ \backslash \text{n}")$
+\item exception: none
+\end{itemize}
+
+\noindent save($game, s$):
+\begin{itemize}
+\item transition: Creates a file outFile with the name $s$.\\
+outFile := $(\forall \ i : \mathbb{Z} \mid 0 \le i < \mbox{SIZE}: (\forall \ j : \mathbb{Z} \mid 0 \le j < \mbox{SIZE}: game.\mbox{getb}(i, j) = \mbox{DEAD} \Rightarrow 0 + "," | \ game.\mbox{getb}(i, j) = \mbox{ALIVE} \Rightarrow 1 + ",") "\backslash \text{n}")$
+\item exception: none
+\end{itemize}
+
+\newpage
+
+\section*{Critique of Design}
+
+\indent Firstly, my design follows the principle of consistency because the coding style and variable naming is consistent, which makes the code easier to read. For example, a string argument is always named $s$, a GameBoard argument is always named $game$, and the boardT indices are always referred to using $i$ and $j$. In addition, referring to the size of the game board using the exported constant SIZE, instead of the number 20 also makes the design more consistent. If someone ever wanted to change the design so it has a larger game board, they would only have to change one line of code (the \#define SIZE 20 line) instead of having to change every place where the game board size is used.
+
+\medskip
+
+\indent In regards to cohesion, creating a GameBoard module and a View module instead of just one module is an example of how my design follows this principle. The functions in each module are now more closely related to one another than if they were all put in one module. The functions in the GameBoard module are all directly related to the game board itself, like initializing it, transitioning to the next state, and getting one of its cell values. The View module's functions are different from GameBoard's functions because they are solely for "viewing" the module. Both of View's functions output the game state either to the console or a text file. Since my design follows the MVC design pattern, it is more cohesive. 
+
+\medskip
+
+\indent In regards to information hiding, making the variable $b$, which holds the state of each cell in the game board, private follows this principle. The contents of $b$ can't be tampered with and can only be accessed through using the class' public functions. 
+
+\bigskip
+
+\indent A way my design follow the principle of generality is that it can take any input file (that still follows the proper format). Initially, I was going to make the init function not take a file name as an argument. It was just going to automatically read from the file input.txt. Enabling the init function to take any file makes the design more general because the initial state of the game board can now be anything, it is not predefined. Furthermore, my design follows the essentiality and minimality qualities as it only contains the functions that it needs to work properly. There are no additional uneeded or unused functions. The minimal functions that it does have are essential for the program to work as intended.\\ \\
+
+\end {document}
